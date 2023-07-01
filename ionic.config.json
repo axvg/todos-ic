@@ -1,0 +1,7 @@
+{
+  "name": "todos-ic",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
