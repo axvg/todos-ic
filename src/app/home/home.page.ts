@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
+import { AddItemPage } from '../add-item/add-item.page';
 
 export interface Item {
   title: string;
@@ -12,7 +13,10 @@ export interface Item {
   styleUrls: ['home.page.scss'],
 })
 export class HomePage {
-  constructor(public navCtrl: NavController) {}
+  constructor(
+    public navCtrl: NavController,
+    public modalCtrl: ModalController
+  ) {}
   public items!: Item[];
 
   ionViewDidEnter() {
@@ -33,5 +37,20 @@ export class HomePage {
   }
 
   viewItem(item: any) {}
-  addItem() {}
+
+  async addItem() {
+    const modal = await this.modalCtrl.create({ component: AddItemPage });
+    modal.present();
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'accept') {
+      if (data as Item) {
+        this.saveItem(data);
+      }
+    }
+  }
+
+  saveItem(item: Item) {
+    this.items.push(item);
+  }
 }
