@@ -18,11 +18,12 @@ export class HomePage {
     public modalCtrl: ModalController
   ) {}
   public items!: Item[];
+  $component = AddItemPage;
 
   ionViewDidEnter() {
     this.items = [
       {
-        title: 'Item 1',
+        title: 'Item-1',
         description: 'This is an item description.',
       },
       {
@@ -36,7 +37,12 @@ export class HomePage {
     ];
   }
 
-  viewItem(item: any) {}
+  viewItem(item: Item) {
+    const formattedTitle = item.title.replace(/\s+/g, '-');
+    this.navCtrl.navigateForward(['item-detail', formattedTitle], {
+      animated: true,
+    });
+  }
 
   async addItem() {
     const modal = await this.modalCtrl.create({ component: AddItemPage });
