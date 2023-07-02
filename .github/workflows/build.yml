@@ -1,51 +1,55 @@
-name: Build Android
+name: Ionic - Android APK
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - '*'
+      - '.github/workflows/build.yml'
+      - 'android/**'
+      - 'src/**'
+      - '!**/*.md'
+    branches:
+      - main
+      - ionic
 
 jobs:
-  build:
-    name: Build APK
+  ionic-build-android:
+    name: Build Android APK
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Setup java
-        uses: actions/setup-java@v1
+      # Setup Web environment to install packages.
+      - name: Setup Web environment
+        uses: actions/setup-node@v3
         with:
-          java-version: 1.8
+          node-version: '16'
+          cache: 'npm'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
+      # Setup Java environment in order to build the Android app.
+      - name: Setup Java 11
+        uses: actions/setup-java@v3
         with:
-          node-version: 18.x
+          distribution: 'zulu'
+          java-version: '11'
+          cache: 'gradle'
 
-      - name: Install Ionic
+      - name: Install Ionic CLI
         run: npm install -g @ionic/cli
 
-      - name: Install app dependencies
-        run: npm install
+      - name: Install packages
+        run: npm install # or npm ci
 
-      - name: Build Ionic App
-        run: ionic build
+      - name: Build the ionic project for Android
+        run: ionic capacitor build android --prod --no-open
 
-      - name: Copy Android
-        run: ionic capacitor copy android
+      - name: Build Android debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
 
-      - name: Build Android Dev APK
-        run: ionic capacitor build android
-
-      - name: Build Android Release APK
-        run: ionic capacitor build android --release --prod
-
-      - name: Generate the Android App Bundle
-        working-directory: ./android/
-        run: ./gradlew bundle
-        
-      - name: Save release bundle as artifact
-        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb # tag=v3
+      - name: Save apk file as artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: app-release
-          path: |
-            ${{ github.workspace }}/packages/app/android/app/build/outputs/bundle/release/*.aab
-            ${{ github.workspace }}/packages/app/android/app/build/outputs/apk/release/*.apk
+          name: ionic-build-android
+          path: android/app/build/outputs/apk/debug/app-debug.apk
