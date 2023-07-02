@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavParams } from '@ionic/angular';
+import { DataService } from '../data.service';
 
 @Component({
   selector: 'app-item-detail',
@@ -8,15 +9,18 @@ import { NavParams } from '@ionic/angular';
   styleUrls: ['./item-detail.page.scss'],
 })
 export class ItemDetailPage implements OnInit {
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private dataService: DataService
+  ) {}
 
   ngOnInit() {}
 
   title!: string;
   description!: string;
 
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
     this.title = this.route.snapshot.params['title'];
-    this.description = 'description';
+    this.description = (await this.dataService.getItem(this.title)).description;
   }
 }

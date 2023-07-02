@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController, NavController } from '@ionic/angular';
 import { AddItemPage } from '../add-item/add-item.page';
+import { DataService } from '../data.service';
 
 export interface Item {
   title: string;
@@ -15,27 +16,17 @@ export interface Item {
 export class HomePage {
   constructor(
     public navCtrl: NavController,
-    public modalCtrl: ModalController
-  ) {}
-  public items!: Item[];
-  $component = AddItemPage;
-
-  ionViewDidEnter() {
-    this.items = [
-      {
-        title: 'Item-1',
-        description: 'This is an item description.',
-      },
-      {
-        title: 'Item 2',
-        description: 'This is an item description.',
-      },
-      {
-        title: 'Item 3',
-        description: 'This is an item description.',
-      },
-    ];
+    public modalCtrl: ModalController,
+    public dataService: DataService
+  ) {
+    this.dataService.getData().then((todos) => {
+      if (todos) {
+        this.items = todos;
+      }
+    });
   }
+  public items: Item[] = [];
+  $component = AddItemPage;
 
   viewItem(item: Item) {
     const formattedTitle = item.title.replace(/\s+/g, '-');
@@ -57,6 +48,7 @@ export class HomePage {
   }
 
   saveItem(item: Item) {
-    this.items.push(item);
+    this.items?.push(item);
+    this.dataService.save(this.items);
   }
 }
